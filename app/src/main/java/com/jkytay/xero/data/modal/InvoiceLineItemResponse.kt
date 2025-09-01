@@ -1,6 +1,6 @@
 package com.jkytay.xero.data.modal
 
-data class InvoiceLineItem(
+data class InvoiceLineItemResponse(
     /**
      * Unique Id for invoice line item
      */
@@ -16,5 +16,5 @@ data class InvoiceLineItem(
     /**
      * Price in cents per hour
      */
-    val priceInCents: Int
+    val priceInCents: Int,
 )
