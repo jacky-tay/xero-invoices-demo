@@ -1,6 +1,9 @@
 package com.jkytay.xero.data.modal
 
-data class InvoicesResponse(
+import kotlinx.serialization.Serializable
+
+@Serializable
+internal data class InvoicesResponse(
     /**
      * The list of invoices
      */

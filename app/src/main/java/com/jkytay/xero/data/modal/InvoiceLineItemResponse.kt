@@ -1,6 +1,10 @@
 package com.jkytay.xero.data.modal
 
-data class InvoiceLineItemResponse(
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+@Serializable
+internal data class InvoiceLineItemResponse(
     /**
      * Unique Id for invoice line item
      */
@@ -16,5 +20,6 @@ data class InvoiceLineItemResponse(
     /**
      * Price in cents per hour
      */
+    @SerialName("priceinCents")
     val priceInCents: Int,
 )
