@@ -1,36 +1,45 @@
 package com.jkytay.xero
 
+import com.jkytay.xero.data.InvoiceRepository
 import com.jkytay.xero.data.modal.InvoiceLineItemResponse
 import com.jkytay.xero.data.modal.InvoiceResponse
 import com.jkytay.xero.data.modal.InvoicesResponse
 import com.jkytay.xero.ui.modal.Invoice
 import com.jkytay.xero.ui.modal.InvoiceLineItem
 import com.jkytay.xero.ui.modal.InvoiceTransformerImpl
+import com.jkytay.xero.usecases.FetchInvoicesUseCaseImpl
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import org.junit.Test
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
+import org.junit.Test
 import java.time.LocalDateTime
 import kotlin.test.assertEquals
 
-class InvoiceTransformerTest {
+class FetchInvoicesUseCaseTest {
 
-    private lateinit var impl: InvoiceTransformerImpl
     private lateinit var mockDate: LocalDateTime
+    private lateinit var invoiceRepository: InvoiceRepository
+    private lateinit var useCase: FetchInvoicesUseCaseImpl
 
     @Before
     fun setup() {
         mockDate = LocalDateTime.now()
-        impl = InvoiceTransformerImpl(
-            dateFormat = mockk(relaxed = true) {
-                every { parse(any()) } returns mockDate
-            }
+        invoiceRepository = mockk(relaxed = true)
+        useCase = FetchInvoicesUseCaseImpl(
+            repository = invoiceRepository,
+            transformer = InvoiceTransformerImpl(
+                dateFormat = mockk(relaxed = true) {
+                    every { parse(any()) } returns mockDate
+                }
+            )
         )
     }
 
     @Test
-    fun `assert invoice response model can be converted to model`() {
-        val input = InvoicesResponse(
+    fun `invoice response model should be fetched and converted to invoice display model`() = runTest {
+        val invoicesResponse = InvoicesResponse(
             items = listOf(
                 InvoiceResponse(
                     id = "invoice_0",
@@ -45,15 +54,10 @@ class InvoiceTransformerTest {
                         )
                     )
                 ),
-                InvoiceResponse(
-                    id = "invoice_1",
-                    date = "2022-10-05T13:00:10",
-                    description = "There is no invoice line items",
-                    items = emptyList()
-                )
             )
         )
-        val actual = impl.parse(input)
+        coEvery { invoiceRepository.fetchInvoices() } returns invoicesResponse
+        val actual = useCase.invoke()
         val expected = listOf(
             Invoice(
                 id = "invoice_0",
@@ -70,22 +74,7 @@ class InvoiceTransformerTest {
                 ),
                 isExpand = false,
             ),
-            Invoice(
-                id = "invoice_1",
-                date = mockDate,
-                description = "There is no invoice line items",
-                items = emptyList(),
-                isExpand = false,
-            ),
         )
-        assertEquals(expected = expected, actual = actual)
-    }
-
-    @Test
-    fun `empty invoice response model should return empty list`() {
-        val input = InvoicesResponse(items = emptyList())
-        val actual = impl.parse(input)
-        val expected = emptyList<Invoice>()
         assertEquals(expected = expected, actual = actual)
     }
 }
