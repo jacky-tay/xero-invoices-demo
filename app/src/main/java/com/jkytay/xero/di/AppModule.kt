@@ -9,6 +9,8 @@ import com.jkytay.xero.data.InvoiceRepository
 import com.jkytay.xero.data.InvoiceRepositoryImpl
 import com.jkytay.xero.ui.InvoicesViewModel
 import com.jkytay.xero.ui.InvoicesViewModelImpl
+import com.jkytay.xero.ui.formatter.Formatter
+import com.jkytay.xero.ui.formatter.FormatterImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -45,4 +47,9 @@ abstract class AppModule {
     @Singleton
     @Binds
     internal abstract fun bindDateFormatter(impl: DateFormatterImpl): DateFormatter
+
+    // make sure singleton throughout the entire application lifecycle
+    @Singleton
+    @Binds
+    internal abstract fun bindFormatter(impl: FormatterImpl): Formatter
 }
