@@ -1,0 +1,58 @@
+{malformed
+  "items": [
+    {
+      "id": 1,
+      "date": "2022-10-01T10:22:32",
+      "items": [
+        {
+          "id": 1,
+          "name": "Service #1",
+          "quantity": 1,
+          "priceinCents": 100
+        },
+        {
+          "id": 2,
+          "name": "Service #2",
+          "quantity": 2,
+          "priceinCents": 750
+        },
+        {
+          "id": 3,
+          "name": "Service #3",
+          "quantity": 1,
+          "priceinCents": 500
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "date": "2022-10-05T13:00:10",
+      "items": [
+        {
+          "id": 2,
+          "name": "Service #2",
+          "quantity": 6,
+          "priceinCents": 750
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "date": "2022-10-01T10:22:32",
+      "items": [
+        {
+          "id": 1,
+          "name": "Service #1",
+          "quantity": 3,
+          "priceinCents": 100
+        },
+        {
+          "id": 3,
+          "name": "Service #3",
+          "quantity": 7,
+          "priceinCents": 500
+        }
+      ]
+    }
+  ]
+}malformed
