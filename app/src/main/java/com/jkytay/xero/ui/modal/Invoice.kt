@@ -9,5 +9,5 @@ data class Invoice(
     val date: LocalDateTime,
     val description: String?,
     val items: List<InvoiceLineItem>,
-)
     val isExpand: Boolean = false,
+) : InvoiceDisplayRow
