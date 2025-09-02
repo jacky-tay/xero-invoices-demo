@@ -7,4 +7,12 @@
     <string name="invoice_error_retry">Retry</string>
     <!--  Content description for error icon  -->
     <string name="invoice_error_icon_content_description">Error</string>
+
+    <!--  Message to display when fetch invoice return empty  -->
+    <string name="invoice_empty_message">Looks like there is no invoices.</string>
+    <!--  Title for Reload button when fetch invoice is empty  -->
+    <string name="invoice_empty_reload">Reload</string>
+    <!--  Content description for error icon  -->
+    <string name="invoice_empty_icon_content_description">Empty</string>
+
 </resources>
