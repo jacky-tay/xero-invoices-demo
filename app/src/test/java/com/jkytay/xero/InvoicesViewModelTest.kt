@@ -4,12 +4,9 @@ import app.cash.turbine.test
 import com.jkytay.xero.data.Action
 import com.jkytay.xero.data.AnalyticTracker
 import com.jkytay.xero.ui.InvoicesViewModelImpl
-import com.jkytay.xero.ui.modal.Divider
 import com.jkytay.xero.ui.modal.Invoice
 import com.jkytay.xero.ui.modal.InvoiceLineItem
 import com.jkytay.xero.ui.modal.InvoiceState
-import com.jkytay.xero.usecases.CollapseInvoiceUseCase
-import com.jkytay.xero.usecases.ExpandInvoiceUseCase
 import com.jkytay.xero.usecases.FetchInvoicesUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -29,8 +26,6 @@ class InvoicesViewModelTest {
 
     private lateinit var mockDate: LocalDateTime
     private lateinit var fetchInvoicesUseCase: FetchInvoicesUseCase
-    private lateinit var expandInvoiceUseCase: ExpandInvoiceUseCase
-    private lateinit var collapseInvoiceUseCase: CollapseInvoiceUseCase
     private lateinit var analyticTracker: AnalyticTracker
     private lateinit var viewModel: InvoicesViewModelImpl
 
@@ -39,8 +34,6 @@ class InvoicesViewModelTest {
         mockDate = LocalDateTime.now()
 
         fetchInvoicesUseCase = mockk(relaxed = true)
-        expandInvoiceUseCase = mockk(relaxed = true)
-        collapseInvoiceUseCase = mockk(relaxed = true)
         analyticTracker = mockk(relaxed = true)
     }
 
@@ -102,7 +95,7 @@ class InvoicesViewModelTest {
             setupViewModel()
 
             // it should also include a divider after invoice
-            val expected = InvoiceState.ContentReady(list + listOf(Divider("invoice_0")))
+            val expected = InvoiceState.ContentReady(list)
             viewModel.sharedState.test {
                 // initially return Loading state
                 assertEquals(expected = InvoiceState.Loading, actual = awaitItem())
@@ -217,129 +210,6 @@ class InvoicesViewModelTest {
 
     // region InvoiceSectionHandler
     @Test
-    fun `isInvoiceHeaderExpand return false when invoice section is not expanded`() =
-        runTest(testDispatcher)
-        {
-            val invoice = Invoice(
-                id = "invoice_0",
-                date = mockDate,
-                description = null,
-                items = listOf(
-                    InvoiceLineItem(
-                        invoiceId = "invoice_0",
-                        id = "invoice_item_0",
-                        name = "My service",
-                        timeSpentInHour = 2,
-                        hourlyRate = 23.5
-                    )
-                ),
-                isExpand = false,
-            )
-            coEvery { fetchInvoicesUseCase.invoke() } returns listOf(invoice)
-
-            setupViewModel()
-            viewModel.sharedState.test {
-                // state change to Loading
-                assertEquals(expected = InvoiceState.Loading, actual = awaitItem())
-                // invoice fetch return ContentReady with Divider
-                assertEquals(
-                    expected = InvoiceState.ContentReady(
-                        displayItems = listOf(
-                            invoice,
-                            Divider("invoice_0")
-                        )
-                    ),
-                    actual = awaitItem()
-                )
-                expectNoEvents()
-            }
-
-            val actual = viewModel.isInvoiceHeaderExpand("invoice_0")
-            assertEquals(expected = false, actual = actual)
-        }
-
-    // This is cheating vm, as invoice should always start with collapse mode
-    @Test
-    fun `isInvoiceHeaderExpand return true when invoice section is expanded`() =
-        runTest(testDispatcher) {
-            val invoice = Invoice(
-                id = "invoice_0",
-                date = mockDate,
-                description = null,
-                items = listOf(
-                    InvoiceLineItem(
-                        invoiceId = "invoice_0",
-                        id = "invoice_item_0",
-                        name = "My service",
-                        timeSpentInHour = 2,
-                        hourlyRate = 23.5
-                    )
-                ),
-                isExpand = true,
-            )
-            coEvery { fetchInvoicesUseCase.invoke() } returns listOf(invoice)
-
-            setupViewModel()
-            viewModel.sharedState.test {
-                // state change to Loading
-                assertEquals(expected = InvoiceState.Loading, actual = awaitItem())
-                // invoice fetch return ContentReady with Divider
-                assertEquals(
-                    expected = InvoiceState.ContentReady(
-                        displayItems = listOf(
-                            invoice,
-                            Divider("invoice_0")
-                        )
-                    ),
-                    actual = awaitItem()
-                )
-                expectNoEvents()
-            }
-            val actual = viewModel.isInvoiceHeaderExpand("invoice_0")
-            assertEquals(expected = true, actual = actual)
-        }
-
-    @Test
-    fun `isInvoiceHeaderExpand return false when invoice section is not found`() =
-        runTest(testDispatcher) {
-            val invoice = Invoice(
-                id = "invoice_0",
-                date = mockDate,
-                description = null,
-                items = listOf(
-                    InvoiceLineItem(
-                        invoiceId = "invoice_0",
-                        id = "invoice_item_0",
-                        name = "My service",
-                        timeSpentInHour = 2,
-                        hourlyRate = 23.5
-                    )
-                ),
-                isExpand = false,
-            )
-            coEvery { fetchInvoicesUseCase.invoke() } returns listOf(invoice)
-
-            setupViewModel()
-            viewModel.sharedState.test {
-                // state change to Loading
-                assertEquals(expected = InvoiceState.Loading, actual = awaitItem())
-                // invoice fetch return ContentReady with Divider
-                assertEquals(
-                    expected = InvoiceState.ContentReady(
-                        displayItems = listOf(
-                            invoice,
-                            Divider("invoice_0")
-                        )
-                    ),
-                    actual = awaitItem()
-                )
-                expectNoEvents()
-            }
-            val actual = viewModel.isInvoiceHeaderExpand("invoice_1")
-            assertEquals(expected = false, actual = actual)
-        }
-
-    @Test
     fun `when invoice is collapsed, tapping it should invoke expandInvoiceUseCase`() =
         runTest(testDispatcher) {
             val invoice = Invoice(
@@ -366,10 +236,7 @@ class InvoicesViewModelTest {
                 // invoice fetch return ContentReady with Divider
                 assertEquals(
                     expected = InvoiceState.ContentReady(
-                        displayItems = listOf(
-                            invoice,
-                            Divider("invoice_0")
-                        )
+                        displayItems = listOf(invoice)
                     ),
                     actual = awaitItem()
                 )
@@ -382,16 +249,6 @@ class InvoicesViewModelTest {
             viewModel.sharedState.test {
                 awaitItem() // return from expandInvoiceUseCase
                 expectNoEvents()
-            }
-
-            verify {
-                expandInvoiceUseCase(
-                    invoiceId = "invoice_0",
-                    displayItems = listOf(
-                        invoice,
-                        Divider("invoice_0")
-                    )
-                )
             }
         }
 
@@ -423,10 +280,7 @@ class InvoicesViewModelTest {
                 // invoice fetch return ContentReady with Divider
                 assertEquals(
                     expected = InvoiceState.ContentReady(
-                        displayItems = listOf(
-                            invoice,
-                            Divider("invoice_0")
-                        )
+                        displayItems = listOf(invoice)
                     ),
                     actual = awaitItem()
                 )
@@ -440,21 +294,12 @@ class InvoicesViewModelTest {
                 awaitItem() // return from expandInvoiceUseCase
                 expectNoEvents()
             }
-
-            verify {
-                collapseInvoiceUseCase(
-                    invoiceId = "invoice_0",
-                    displayItems = listOf(invoice, Divider("invoice_0"))
-                )
-            }
         }
     // endregion
 
     private fun setupViewModel() {
         viewModel = InvoicesViewModelImpl(
             fetchInvoicesUseCase = fetchInvoicesUseCase,
-            expandInvoiceUseCase = expandInvoiceUseCase,
-            collapseInvoiceUseCase = collapseInvoiceUseCase,
             dispatcher = testDispatcher,
             analyticTracker = analyticTracker,
         )

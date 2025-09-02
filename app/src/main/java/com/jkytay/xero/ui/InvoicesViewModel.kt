@@ -4,11 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jkytay.xero.data.Action
 import com.jkytay.xero.data.AnalyticTracker
-import com.jkytay.xero.ui.modal.Divider
-import com.jkytay.xero.ui.modal.Invoice
 import com.jkytay.xero.ui.modal.InvoiceState
-import com.jkytay.xero.usecases.CollapseInvoiceUseCase
-import com.jkytay.xero.usecases.ExpandInvoiceUseCase
 import com.jkytay.xero.usecases.FetchInvoicesUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
@@ -20,7 +16,6 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 interface InvoiceSectionHandler {
-    fun isInvoiceHeaderExpand(id: String): Boolean
 
     fun onInvoiceHeaderClick(id: String)
 }
@@ -37,8 +32,6 @@ interface InvoicesViewModel : InvoiceFetchHandler, InvoiceSectionHandler {
 
 internal class InvoicesViewModelImpl @Inject constructor(
     private val fetchInvoicesUseCase: FetchInvoicesUseCase,
-    private val expandInvoiceUseCase: ExpandInvoiceUseCase,
-    private val collapseInvoiceUseCase: CollapseInvoiceUseCase,
     private val dispatcher: CoroutineDispatcher,
     private val analyticTracker: AnalyticTracker,
 ) : ViewModel(), InvoicesViewModel {
@@ -70,23 +63,19 @@ internal class InvoicesViewModelImpl @Inject constructor(
     // endregion
 
     // region invoice section
-    override fun isInvoiceHeaderExpand(id: String): Boolean {
-        return (_sharedState.value as? InvoiceState.ContentReady)
-            ?.displayItems
-            ?.any { it is Invoice && it.id == id && it.isExpand }
-            ?: false
-    }
-
     override fun onInvoiceHeaderClick(id: String) {
-        val list = (_sharedState.value as? InvoiceState.ContentReady)?.displayItems ?: return
-        val newList = if (isInvoiceHeaderExpand(id)) {
-            analyticTracker.trackUI("Invoice Section", Action.Collapse)
-            collapseInvoiceUseCase(invoiceId = id, displayItems = list)
-        } else {
-            analyticTracker.trackUI("Invoice Section", Action.Expand)
-            expandInvoiceUseCase(invoiceId = id, displayItems = list)
+        val list = (_sharedState.value as? InvoiceState.ContentReady)?.displayItems?.toMutableList()
+            ?: return
+        val index = list.indexOfFirst { it.id == id }
+        if (index != -1) {
+            val isAlreadyExpanded = list[index].isExpand
+            analyticTracker.trackUI(
+                event = "Invoice Section",
+                action = if (isAlreadyExpanded) Action.Collapse else Action.Expand
+            )
+            list[index] = list[index].copy(isExpand = isAlreadyExpanded.not())
         }
-        _sharedState.update { InvoiceState.ContentReady(newList) }
+        _sharedState.update { InvoiceState.ContentReady(list.toList()) }
     }
     // endregion
 
@@ -96,15 +85,8 @@ internal class InvoicesViewModelImpl @Inject constructor(
         fetchInvoicesJob = viewModelScope.launch(dispatcher) {
             try {
                 val result = fetchInvoicesUseCase()
-                // add a divider at the end of each invoice
-                val zipList = result.flatMap { invoice ->
-                    listOf(
-                        invoice,
-                        Divider(invoice.id)
-                    )
-                }
                 _sharedState.update {
-                    InvoiceState.ContentReady(zipList)
+                    InvoiceState.ContentReady(result)
                 }
             } catch (e: Exception) {
                 analyticTracker.trackError(exception = e, message = "Fetch invoices")

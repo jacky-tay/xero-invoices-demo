@@ -9,4 +9,4 @@ data class InvoiceLineItem(
     val name: String,
     val timeSpentInHour: Int,
     val hourlyRate: Double,
-) : InvoiceDisplayRow
+)

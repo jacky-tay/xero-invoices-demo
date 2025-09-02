@@ -13,7 +13,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.jkytay.xero.R
 import com.jkytay.xero.ui.formatter.Formatter
-import com.jkytay.xero.ui.modal.Divider
 import com.jkytay.xero.ui.modal.InvoiceState
 import com.jkytay.xero.ui.theme.ThemePreviews
 import com.jkytay.xero.ui.theme.XeroInvoicesTheme
@@ -67,15 +66,12 @@ private class InvoicePreviewProvider : PreviewParameterProvider<InvoiceState> {
             InvoiceState.ContentReady(displayItems = emptyList()),
             InvoiceState.ContentReady(
                 displayItems = listOf(
-                    mockInvoice,
-                    Divider(mockInvoice.id),
+                    mockInvoice
                 )
             ),
             InvoiceState.ContentReady(
                 displayItems = listOf(
-                    mockInvoice,
-                    mockInvoiceLineItem,
-                    Divider(mockInvoice.id),
+                    mockInvoice.copy(isExpand = true)
                 )
             ),
         )
@@ -91,12 +87,6 @@ private fun rememberMockInvoicesViewModel(state: InvoiceState): InvoicesViewMode
             override fun onRetry() = Unit
 
             override fun onReload() = Unit
-
-            override fun isInvoiceHeaderExpand(id: String): Boolean =
-                when (val value = sharedState.value) {
-                    is InvoiceState.ContentReady -> value.displayItems.contains(mockInvoiceLineItem)
-                    else -> false
-                }
 
             override fun onInvoiceHeaderClick(id: String) = Unit
         }

@@ -15,5 +15,5 @@ sealed class InvoiceState {
     /**
      * State when invoice is ready
      */
-    data class ContentReady(val displayItems: List<InvoiceDisplayRow>) : InvoiceState()
+    data class ContentReady(val displayItems: List<Invoice>) : InvoiceState()
 }
