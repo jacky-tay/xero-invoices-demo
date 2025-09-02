@@ -5,6 +5,8 @@ import com.jkytay.xero.data.DateFormatter
 import com.jkytay.xero.data.DateFormatterImpl
 import com.jkytay.xero.data.HttpClient
 import com.jkytay.xero.data.HttpClientImpl
+import com.jkytay.xero.data.InvoiceRepository
+import com.jkytay.xero.data.InvoiceRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -26,6 +28,11 @@ abstract class AppModule {
     @Singleton
     @Binds
     internal abstract fun bindHttpClient(impl: HttpClientImpl): HttpClient
+
+    // make sure singleton throughout the entire application lifecycle
+    @Singleton
+    @Binds
+    internal abstract fun bindRepository(impl: InvoiceRepositoryImpl): InvoiceRepository
 
     // make sure singleton throughout the entire application lifecycle
     @Singleton
