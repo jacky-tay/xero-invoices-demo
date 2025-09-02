@@ -7,6 +7,8 @@ import com.jkytay.xero.data.HttpClient
 import com.jkytay.xero.data.HttpClientImpl
 import com.jkytay.xero.data.InvoiceRepository
 import com.jkytay.xero.data.InvoiceRepositoryImpl
+import com.jkytay.xero.ui.InvoicesViewModel
+import com.jkytay.xero.ui.InvoicesViewModelImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -16,6 +18,7 @@ import javax.inject.Singleton
 
 @Module(
     includes = [
+        ViewModelModule::class,
         TransformerModule::class,
         UseCasesModule::class,
     ]
@@ -24,6 +27,9 @@ import javax.inject.Singleton
 abstract class AppModule {
     @Binds
     internal abstract fun provideContext(@ApplicationContext context: Context): Context
+
+    @Binds
+    internal abstract fun bindInvoicesViewModel(impl: InvoicesViewModelImpl): InvoicesViewModel
 
     // make sure singleton throughout the entire application lifecycle
     @Singleton
