@@ -1,6 +1,8 @@
 package com.jkytay.xero.di
 
 import android.content.Context
+import com.jkytay.xero.data.AnalyticTracker
+import com.jkytay.xero.data.AnalyticTrackerImpl
 import com.jkytay.xero.data.DateFormatter
 import com.jkytay.xero.data.DateFormatterImpl
 import com.jkytay.xero.data.HttpClient
@@ -52,4 +54,9 @@ abstract class AppModule {
     @Singleton
     @Binds
     internal abstract fun bindFormatter(impl: FormatterImpl): Formatter
+
+    // make sure singleton throughout the entire application lifecycle
+    @Singleton
+    @Binds
+    internal abstract fun bindAnalyticTracker(impl: AnalyticTrackerImpl): AnalyticTracker
 }

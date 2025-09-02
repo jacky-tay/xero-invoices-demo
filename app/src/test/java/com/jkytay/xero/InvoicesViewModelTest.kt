@@ -1,6 +1,7 @@
 package com.jkytay.xero
 
 import app.cash.turbine.test
+import com.jkytay.xero.data.Action
 import com.jkytay.xero.data.AnalyticTracker
 import com.jkytay.xero.ui.InvoicesViewModelImpl
 import com.jkytay.xero.ui.modal.Divider
@@ -30,6 +31,7 @@ class InvoicesViewModelTest {
     private lateinit var fetchInvoicesUseCase: FetchInvoicesUseCase
     private lateinit var expandInvoiceUseCase: ExpandInvoiceUseCase
     private lateinit var collapseInvoiceUseCase: CollapseInvoiceUseCase
+    private lateinit var analyticTracker: AnalyticTracker
     private lateinit var viewModel: InvoicesViewModelImpl
 
     @Before
@@ -39,6 +41,7 @@ class InvoicesViewModelTest {
         fetchInvoicesUseCase = mockk(relaxed = true)
         expandInvoiceUseCase = mockk(relaxed = true)
         collapseInvoiceUseCase = mockk(relaxed = true)
+        analyticTracker = mockk(relaxed = true)
     }
 
     @After
@@ -127,7 +130,8 @@ class InvoicesViewModelTest {
     @Test
     fun `when fetch invoice throws error, it should set state as Error`() =
         runTest(testDispatcher) {
-            coEvery { fetchInvoicesUseCase.invoke() } throws Exception("Some error")
+            val exception = Exception("Some error")
+            coEvery { fetchInvoicesUseCase.invoke() } throws exception
 
             setupViewModel()
 
@@ -137,6 +141,13 @@ class InvoicesViewModelTest {
                 assertEquals(expected = InvoiceState.Loading, actual = awaitItem())
                 assertEquals(expected = expected, actual = awaitItem())
                 expectNoEvents()
+            }
+
+            verify {
+                analyticTracker.trackError(
+                    exception = exception,
+                    message = "Fetch invoices"
+                )
             }
         }
     // endregion
@@ -156,6 +167,9 @@ class InvoicesViewModelTest {
         }
 
         viewModel.onRetry()
+
+        verify { analyticTracker.trackUI(event = "onRetry", action = Action.ButtonClick) }
+
 
         viewModel.sharedState.test {
             // state change to Loading
@@ -183,6 +197,8 @@ class InvoicesViewModelTest {
         }
 
         viewModel.onReload()
+
+        verify { analyticTracker.trackUI(event = "onReload", action = Action.ButtonClick) }
 
         viewModel.sharedState.test {
             // state change to Loading
@@ -360,6 +376,9 @@ class InvoicesViewModelTest {
                 expectNoEvents()
             }
             viewModel.onInvoiceHeaderClick("invoice_0")
+
+            verify { analyticTracker.trackUI(event = "Invoice Section", action = Action.Expand) }
+
             viewModel.sharedState.test {
                 awaitItem() // return from expandInvoiceUseCase
                 expectNoEvents()
@@ -414,6 +433,9 @@ class InvoicesViewModelTest {
                 expectNoEvents()
             }
             viewModel.onInvoiceHeaderClick("invoice_0")
+
+            verify { analyticTracker.trackUI(event = "Invoice Section", action = Action.Collapse) }
+
             viewModel.sharedState.test {
                 awaitItem() // return from expandInvoiceUseCase
                 expectNoEvents()
@@ -434,6 +456,7 @@ class InvoicesViewModelTest {
             expandInvoiceUseCase = expandInvoiceUseCase,
             collapseInvoiceUseCase = collapseInvoiceUseCase,
             dispatcher = testDispatcher,
+            analyticTracker = analyticTracker,
         )
     }
 }

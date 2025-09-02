@@ -1,5 +1,6 @@
 package com.jkytay.xero
 
+import com.jkytay.xero.data.AnalyticTracker
 import com.jkytay.xero.data.HttpClient
 import com.jkytay.xero.data.InvoiceRepositoryImpl
 import com.jkytay.xero.data.modal.InvoiceLineItemResponse
@@ -8,6 +9,7 @@ import com.jkytay.xero.data.modal.InvoiceResponseTransformerImpl
 import com.jkytay.xero.data.modal.InvoicesResponse
 import io.mockk.coEvery
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
@@ -18,13 +20,16 @@ import kotlin.test.assertFailsWith
 class InvoiceRepositoryTest {
     private lateinit var httpClient: HttpClient
     private lateinit var repo: InvoiceRepositoryImpl
+    private lateinit var analyticTracker: AnalyticTracker
 
     @Before
     fun setup() {
         httpClient = mockk(relaxed = true)
+        analyticTracker = mockk(relaxed = true)
         repo = InvoiceRepositoryImpl(
             httpClient = httpClient,
-            transformer = InvoiceResponseTransformerImpl()
+            transformer = InvoiceResponseTransformerImpl(),
+            analyticTracker = analyticTracker,
         )
     }
 
@@ -62,6 +67,8 @@ class InvoiceRepositoryTest {
         )
         val actual = repo.fetchInvoices()
         assertEquals(expected = expected, actual = actual)
+        // verify analytic logger is tracking network duration
+        verify { analyticTracker.trackNetwork(event = "fetch invoice", duration = any()) }
     }
 
 
@@ -71,6 +78,9 @@ class InvoiceRepositoryTest {
         assertFailsWith(Exception::class) {
             repo.fetchInvoices()
         }
+
+        // verify analytic logger is tracking network duration
+        verify { analyticTracker.trackNetwork(event = "fetch invoice", duration = any()) }
     }
 
     @Test
@@ -80,6 +90,9 @@ class InvoiceRepositoryTest {
         val expected = InvoicesResponse(items = emptyList())
         val actual = repo.fetchInvoices()
         assertEquals(expected = expected, actual = actual)
+
+        // verify analytic logger is tracking network duration
+        verify { analyticTracker.trackNetwork(event = "fetch invoice", duration = any()) }
     }
 
     @Test
@@ -88,6 +101,9 @@ class InvoiceRepositoryTest {
         assertFailsWith(Exception::class) {
             repo.fetchInvoices()
         }
+
+        // verify analytic logger is tracking network duration
+        verify { analyticTracker.trackNetwork(event = "fetch invoice", duration = any()) }
     }
 }
 

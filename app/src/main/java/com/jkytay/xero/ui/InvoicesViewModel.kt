@@ -2,6 +2,8 @@ package com.jkytay.xero.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jkytay.xero.data.Action
+import com.jkytay.xero.data.AnalyticTracker
 import com.jkytay.xero.ui.modal.Divider
 import com.jkytay.xero.ui.modal.Invoice
 import com.jkytay.xero.ui.modal.InvoiceState
@@ -38,6 +40,7 @@ internal class InvoicesViewModelImpl @Inject constructor(
     private val expandInvoiceUseCase: ExpandInvoiceUseCase,
     private val collapseInvoiceUseCase: CollapseInvoiceUseCase,
     private val dispatcher: CoroutineDispatcher,
+    private val analyticTracker: AnalyticTracker,
 ) : ViewModel(), InvoicesViewModel {
 
     private val _sharedState: MutableStateFlow<InvoiceState> =
@@ -52,12 +55,14 @@ internal class InvoicesViewModelImpl @Inject constructor(
 
     // region invoice section
     override fun onRetry() {
+        analyticTracker.trackUI("onRetry", Action.ButtonClick)
         // change state to Loading from Error
         _sharedState.update { InvoiceState.Loading }
         fetchInvoices()
     }
 
     override fun onReload() {
+        analyticTracker.trackUI("onReload", Action.ButtonClick)
         // change state to Loading from ContentReady(Empty)
         _sharedState.update { InvoiceState.Loading }
         fetchInvoices()
@@ -75,8 +80,10 @@ internal class InvoicesViewModelImpl @Inject constructor(
     override fun onInvoiceHeaderClick(id: String) {
         val list = (_sharedState.value as? InvoiceState.ContentReady)?.displayItems ?: return
         val newList = if (isInvoiceHeaderExpand(id)) {
+            analyticTracker.trackUI("Invoice Section", Action.Collapse)
             collapseInvoiceUseCase(invoiceId = id, displayItems = list)
         } else {
+            analyticTracker.trackUI("Invoice Section", Action.Expand)
             expandInvoiceUseCase(invoiceId = id, displayItems = list)
         }
         _sharedState.update { InvoiceState.ContentReady(newList) }
@@ -100,6 +107,7 @@ internal class InvoicesViewModelImpl @Inject constructor(
                     InvoiceState.ContentReady(zipList)
                 }
             } catch (e: Exception) {
+                analyticTracker.trackError(exception = e, message = "Fetch invoices")
                 _sharedState.update { InvoiceState.Error }
             }
         }
