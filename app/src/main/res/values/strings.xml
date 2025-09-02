@@ -15,6 +15,13 @@
     <!--  Content description for error icon  -->
     <string name="invoice_empty_icon_content_description">Empty</string>
 
+    <!--  Display example: Total: $125.00 -->
+    <string name="invoice_header_total">Total: %s</string>
+    <!--  Display example: Invoice abc-123 is collapsed -->
+    <string name="invoice_header_collapsed">Invoice %s is collapsed</string>
+    <!--  Display example: Invoice abc-123 is expanded -->
+    <string name="invoice_header_expanded">Invoice %s is expanded</string>
+
     <!--  Display example: Hourly Rate: $23.50  -->
     <string name="invoice_item_hourly_rate">Hourly Rate: %s</string>
     <plurals name="invoice_item_hour_quantity">
