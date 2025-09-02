@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Xero Invoices</string>
+
+    <!--  Message to display when fetch invoice return error  -->
+    <string name="invoice_error_message">Opps, something went wrong!!</string>
+    <!--  Title for Retry button when fetch invoice failed  -->
+    <string name="invoice_error_retry">Retry</string>
+    <!--  Content description for error icon  -->
+    <string name="invoice_error_icon_content_description">Error</string>
 </resources>
