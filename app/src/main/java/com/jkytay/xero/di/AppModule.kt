@@ -17,6 +17,7 @@ import javax.inject.Singleton
 @Module(
     includes = [
         TransformerModule::class,
+        UseCasesModule::class,
     ]
 )
 @InstallIn(SingletonComponent::class)
