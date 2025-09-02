@@ -15,4 +15,12 @@
     <!--  Content description for error icon  -->
     <string name="invoice_empty_icon_content_description">Empty</string>
 
+    <!--  Display example: Hourly Rate: $23.50  -->
+    <string name="invoice_item_hourly_rate">Hourly Rate: %s</string>
+    <plurals name="invoice_item_hour_quantity">
+        <!--  Display example: Duration: 1 hour  -->
+        <item quantity="one">Duration: %d hour</item>
+        <!--  Display example: Duration: 2 hours  -->
+        <item quantity="other">Duration: %d hours</item>
+    </plurals>
 </resources>
