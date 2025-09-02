@@ -13,7 +13,13 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-interface InvoicesViewModel {
+interface InvoiceFetchHandler {
+    fun onRetry()
+
+    fun onReload()
+}
+
+interface InvoicesViewModel : InvoiceFetchHandler {
     val sharedState: StateFlow<InvoiceState>
 }
 
@@ -31,7 +37,27 @@ internal class InvoicesViewModelImpl @Inject constructor(
         fetchInvoices()
     }
 
+    // region invoice section
+    override fun onRetry() {
+        fetchInvoices()
+    }
+
+    override fun onReload() {
+        fetchInvoices()
+    }
+    // endregion
     private fun fetchInvoices() {
+        // when current state is error or invoice list is empty, fetch invoice should change state to loading
+        _sharedState.update {
+            val isError = it is InvoiceState.Error
+            val isEmpty = it is InvoiceState.ContentReady && it.displayItems.isEmpty()
+            if (isError || isEmpty) {
+                InvoiceState.Loading
+            } else {
+                it
+            }
+        }
+
         // cancel current fetch invoice job, as a new fetch request has been made
         fetchInvoicesJob?.cancel()
         fetchInvoicesJob = viewModelScope.launch {
