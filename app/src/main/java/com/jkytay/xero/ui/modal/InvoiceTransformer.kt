@@ -24,6 +24,7 @@ internal class InvoiceTransformerImpl @Inject constructor(
             description = input.description,
             items = input.items.map {
                 parse(
+                    invoiceId = input.id,
                     input = it
                 )
             }
@@ -31,9 +32,11 @@ internal class InvoiceTransformerImpl @Inject constructor(
     }
 
     private fun parse(
+        invoiceId: String,
         input: InvoiceLineItemResponse
     ): InvoiceLineItem {
         return InvoiceLineItem(
+            invoiceId = invoiceId,
             id = input.id,
             name = input.name,
             timeSpentInHour = input.quantity,

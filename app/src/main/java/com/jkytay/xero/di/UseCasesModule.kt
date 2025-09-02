@@ -1,5 +1,9 @@
 package com.jkytay.xero.di
 
+import com.jkytay.xero.usecases.CollapseInvoiceUseCase
+import com.jkytay.xero.usecases.CollapseInvoiceUseCaseImpl
+import com.jkytay.xero.usecases.ExpandInvoiceUseCase
+import com.jkytay.xero.usecases.ExpandInvoiceUseCaseImpl
 import com.jkytay.xero.usecases.FetchInvoicesUseCase
 import com.jkytay.xero.usecases.FetchInvoicesUseCaseImpl
 import dagger.Binds
@@ -14,4 +18,14 @@ abstract class UseCasesModule() {
     internal abstract fun bindFetchInvoiceUseCase(
         impl: FetchInvoicesUseCaseImpl,
     ): FetchInvoicesUseCase
+
+    @Binds
+    internal abstract fun bindCollapseInvoiceUseCase(
+        impl: CollapseInvoiceUseCaseImpl,
+    ): CollapseInvoiceUseCase
+
+    @Binds
+    internal abstract fun bindExpandInvoiceUseCase(
+        impl: ExpandInvoiceUseCaseImpl,
+    ): ExpandInvoiceUseCase
 }
