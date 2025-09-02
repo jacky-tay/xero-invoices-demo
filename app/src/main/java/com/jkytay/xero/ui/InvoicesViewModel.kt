@@ -8,6 +8,7 @@ import com.jkytay.xero.ui.modal.InvoiceState
 import com.jkytay.xero.usecases.CollapseInvoiceUseCase
 import com.jkytay.xero.usecases.ExpandInvoiceUseCase
 import com.jkytay.xero.usecases.FetchInvoicesUseCase
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -36,6 +37,7 @@ internal class InvoicesViewModelImpl @Inject constructor(
     private val fetchInvoicesUseCase: FetchInvoicesUseCase,
     private val expandInvoiceUseCase: ExpandInvoiceUseCase,
     private val collapseInvoiceUseCase: CollapseInvoiceUseCase,
+    private val dispatcher: CoroutineDispatcher,
 ) : ViewModel(), InvoicesViewModel {
 
     private val _sharedState: MutableStateFlow<InvoiceState> =
@@ -50,10 +52,14 @@ internal class InvoicesViewModelImpl @Inject constructor(
 
     // region invoice section
     override fun onRetry() {
+        // change state to Loading from Error
+        _sharedState.update { InvoiceState.Loading }
         fetchInvoices()
     }
 
     override fun onReload() {
+        // change state to Loading from ContentReady(Empty)
+        _sharedState.update { InvoiceState.Loading }
         fetchInvoices()
     }
     // endregion
@@ -78,20 +84,9 @@ internal class InvoicesViewModelImpl @Inject constructor(
     // endregion
 
     private fun fetchInvoices() {
-        // when current state is error or invoice list is empty, fetch invoice should change state to loading
-        _sharedState.update {
-            val isError = it is InvoiceState.Error
-            val isEmpty = it is InvoiceState.ContentReady && it.displayItems.isEmpty()
-            if (isError || isEmpty) {
-                InvoiceState.Loading
-            } else {
-                it
-            }
-        }
-
         // cancel current fetch invoice job, as a new fetch request has been made
         fetchInvoicesJob?.cancel()
-        fetchInvoicesJob = viewModelScope.launch {
+        fetchInvoicesJob = viewModelScope.launch(dispatcher) {
             try {
                 val result = fetchInvoicesUseCase()
                 // add a divider at the end of each invoice
