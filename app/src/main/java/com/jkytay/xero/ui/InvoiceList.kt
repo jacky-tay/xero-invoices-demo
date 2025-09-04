@@ -49,7 +49,7 @@ fun InvoiceList(
                     )
                 }
             }
-            item(
+            stickyHeader(
                 key = "divider_${invoice.id}",
                 contentType = InvoiceListItemType.Divider
             ) {
