@@ -1,4 +1,4 @@
-package com.jkytay.xero
+package com.jkytay.xero.transformer
 
 import com.jkytay.xero.data.modal.InvoiceLineItemResponse
 import com.jkytay.xero.data.modal.InvoiceResponse
@@ -8,8 +8,8 @@ import com.jkytay.xero.ui.modal.InvoiceLineItem
 import com.jkytay.xero.ui.modal.InvoiceTransformerImpl
 import io.mockk.every
 import io.mockk.mockk
-import org.junit.Test
 import org.junit.Before
+import org.junit.Test
 import java.time.LocalDateTime
 import kotlin.test.assertEquals
 

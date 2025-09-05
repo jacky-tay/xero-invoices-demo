@@ -1,4 +1,4 @@
-package com.jkytay.xero
+package com.jkytay.xero.usecase
 
 import com.jkytay.xero.data.InvoiceRepository
 import com.jkytay.xero.data.modal.InvoiceLineItemResponse

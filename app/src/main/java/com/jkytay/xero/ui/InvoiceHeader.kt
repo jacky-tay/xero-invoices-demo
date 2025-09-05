@@ -69,7 +69,8 @@ fun InvoiceHeader(
                             R.string.invoice_header_expanded
                         } else {
                             R.string.invoice_header_collapsed
-                        }
+                        },
+                        invoice.id
                     )
                 )
             }

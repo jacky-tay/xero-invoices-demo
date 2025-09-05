@@ -1,4 +1,4 @@
-package com.jkytay.xero
+package com.jkytay.xero.viewmodel
 
 import app.cash.turbine.test
 import com.jkytay.xero.data.Action

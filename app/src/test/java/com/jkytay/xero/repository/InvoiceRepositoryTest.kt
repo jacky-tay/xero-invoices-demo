@@ -1,4 +1,4 @@
-package com.jkytay.xero
+package com.jkytay.xero.repository
 
 import com.jkytay.xero.data.AnalyticTracker
 import com.jkytay.xero.data.HttpClient
